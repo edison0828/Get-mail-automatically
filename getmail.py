@@ -39,11 +39,18 @@ def get_user_credentials(user_id):
     
     return creds
 
-def get_last_email_content(service):
-    """獲取用戶最新一封郵件的內容."""
-    # 獲取用戶收件箱中的郵件列表
-    results = service.users().messages().list(userId='me', labelIds=['INBOX'], maxResults=1).execute()
-#     # result: 
+
+
+def extract_text_from_html(html_content):
+    """從 HTML 內容中提取純文本."""
+    soup = BeautifulSoup(html_content, 'html.parser')
+    text = soup.get_text()
+    return text
+
+def get_full_email_content(service):
+    """獲取郵件的完整內容."""
+    results = service.users().messages().list(userId='me', labelIds=['INBOX'], maxResults=5).execute()
+    #     # result: 
 #     {
 #     'messages': [
 #         {
@@ -55,30 +62,12 @@ def get_last_email_content(service):
 #     'resultSizeEstimate': 201 // resultSizeEstimate：一個估計值，表示符合查詢條件的郵件數量。 表示估計有 201 封郵件符合查詢條件。 可能是因為quota的原因無法一次全部拿取
 #    }
     messages = results.get('messages', [])
-#     'messages': [
+    #     'messages': [
 #     {
 #         'id': '1902ea8109630868',
 #         'threadId': '190245ae0ec4b7bd'
 #     }
 #    ]
-    if not messages:
-        print('沒有找到郵件.')
-        return None
-    
-    # 獲取最新一封郵件的詳細內容
-    msg = service.users().messages().get(userId='me', id=messages[0]['id']).execute()
-    return msg['snippet']
-
-def extract_text_from_html(html_content):
-    """從 HTML 內容中提取純文本."""
-    soup = BeautifulSoup(html_content, 'html.parser')
-    text = soup.get_text()
-    return text
-
-def get_full_email_content(service):
-    """獲取郵件的完整內容."""
-    results = service.users().messages().list(userId='me', labelIds=['INBOX'], maxResults=5).execute()
-    messages = results.get('messages', [])
     if not messages:
         print('沒有找到郵件.')
         return None
