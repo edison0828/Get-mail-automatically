@@ -9,6 +9,7 @@ from googleapiclient.errors import HttpError
 from bs4 import BeautifulSoup
 
 import base64
+import gptAPI
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
@@ -80,10 +81,11 @@ def get_full_email_content(service):
         body = ""
 
         if not parts:
-            print(payload.get("mimeType"))
+            # print(payload.get("mimeType"))
+            mime_type = payload.get("mimeType")
             body = payload.get('body').get('data')
         else:
-            print(parts)
+            # print(parts)
             for part in parts:
                 mime_type = part.get('mimeType')
                 if mime_type == 'text/plain':
@@ -94,7 +96,7 @@ def get_full_email_content(service):
             decoded_body = base64.urlsafe_b64decode(body).decode('utf-8')
             if mime_type == 'text/html': #另外處理html類型
                 text_content = extract_text_from_html(decoded_body)
-                return text_content, mime_type
+                return text_content
             return decoded_body
         else:
             return "郵件沒有文本內容"
@@ -111,15 +113,19 @@ def main():
   service = build('gmail', 'v1', credentials=creds) #parameter: servicename/version/credentials
 
   # 獲取最新郵件內容
-  # email_content = get_last_email_content(service)
   email_content = get_full_email_content(service)
     
   if email_content:
-      # 將郵件內容寫入新檔案
-      output_file = f'latest_email_{user_id}.txt'
-      with open(output_file, 'w', encoding='utf-8') as f:
-          f.write(email_content)
-      print(f'最新郵件內容已寫入檔案 {output_file}')
+    #   # 將郵件內容寫入新檔案
+    #   output_file = f'latest_email_{user_id}.txt'
+    #   with open(output_file, 'w', encoding='utf-8') as f:
+    #       f.write(email_content)
+    #   print(f'最新郵件內容已寫入檔案 {output_file}')
+    classification = gptAPI.classify_email(email_content)
+    print(classification)
+
+    reply_draft  = gptAPI.reply_email(email_content)
+    print(reply_draft)
 
 
 
