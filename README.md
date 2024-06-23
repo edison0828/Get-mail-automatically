@@ -8,6 +8,10 @@
 2. `pip install openai`
 3. `prepare your API key`
 
+## 執行
+
+直接在terminal上輸入 getmail.py
+
 ## 授權
 
 目前只有授權 ccclubproject11688@gmail.com 此信箱使用，如果要授權請給我你的信箱
